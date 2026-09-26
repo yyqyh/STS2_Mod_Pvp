@@ -1,0 +1,90 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+    <Import Project=".\local.props" Condition="Exists('.\local.props')" />
+    <Import Project=".\Sts2PathDiscovery.props" Condition="Exists('.\Sts2PathDiscovery.props')" />
+    <Target Name="EnsureLocalProps" BeforeTargets="PrepareForBuild" Condition="!Exists('.\local.props')">
+        <Error Text="Missing '.\local.props'. Copy '.\local.props.template' to '.\local.props', then update 'Sts2Dir' \ 'GodotExe' for your local environment." />
+    </Target>
+
+    <PropertyGroup>
+        <RootNamespace>PvpDuel</RootNamespace>
+        <AssemblyName>pvp_duel</AssemblyName>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <NoWarn>CS0436</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GodotExportPreset>BasicExport</GodotExportPreset>
+        <ModOutputDir>$(Sts2Dir)\mods\pvp_duel\</ModOutputDir>
+        <ModOutputDir Condition="'$(IsOSX)' == 'true'">$(Sts2Dir)\MacOS\mods\pvp_duel\</ModOutputDir>
+        <ModPckPath>$(ModOutputDir)pvp_duel.pck</ModPckPath>
+
+        <!-- 默认不导出 PCK：改了 JSON / 图片 / 场景时才要重出，命令见文件末尾的说明。
+             为什么不默认开：Godot 自己导出时也会跑一遍 dotnet publish，
+             那趟 publish 一旦命中本 target，就会变成"Godot 套 Godot"再打包一次同一个 pck。 -->
+        <RunPckExport Condition="'$(RunPckExport)' == ''">false</RunPckExport>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="GodotSharp">
+            <HintPath>$(Sts2DataDir)\GodotSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="sts2">
+            <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <PackageReference Include="STS2.RitsuLib" Version="0.5.18" />
+    </ItemGroup>
+
+    <!-- 版本号一致性：清单是游戏真正读的那份，Main.cs 里那份只用于日志/显示。
+         改一个忘了另一个时直接在这里报错（临时跳过：-p:SkipVersionCheck=1）。 -->
+    <Target Name="CheckVersionConsistency" BeforeTargets="CoreCompile" Condition="'$(SkipVersionCheck)' != '1'">
+        <PropertyGroup>
+            <_ManifestText>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\pvp_duel.json'))</_ManifestText>
+            <_ManifestVersion>$([System.Text.RegularExpressions.Regex]::Match($(_ManifestText), '"version"\s*:\s*"([^"]+)"').Groups[1].Value)</_ManifestVersion>
+            <_SourceText>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\Core\ModInfo.cs'))</_SourceText>
+            <_SourceVersion>$([System.Text.RegularExpressions.Regex]::Match($(_SourceText), 'Version\s*=\s*"([^"]+)"').Groups[1].Value)</_SourceVersion>
+        </PropertyGroup>
+        <Error Condition="'$(_ManifestVersion)' != '$(_SourceVersion)'"
+               Text="版本号不一致：pvp_duel.json 是 $(_ManifestVersion)，Core/ModInfo.cs 是 $(_SourceVersion)。两处要改成同一个（清单才是游戏读的那份）。" />
+        <Message Importance="high" Text="版本号一致：$(_ManifestVersion)" />
+    </Target>
+
+    <Target Name="Copy Mod" AfterTargets="PostBuildEvent">
+        <Message Text="Copying mod to Slay the Spire 2 mods folder..." Importance="high" />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModOutputDir)" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)\pvp_duel.json" DestinationFolder="$(ModOutputDir)" />
+    </Target>
+
+    <!-- 改了 JSON / 图片 / 场景就必须重出 PCK（C# 只走上面的 Copy Mod，资源只认 PCK 里的那份）：
+             dotnet build .\pvp_duel.csproj -c ExportRelease -p:RunPckExport=true
+         或者在 Godot 编辑器里 Project > Export > Export PCK/ZIP。 -->
+    <Target Name="Export Mod PCK" AfterTargets="Build" Condition="'$(RunPckExport)' == 'true' and '$(STS2_SKIP_PCK_EXPORT)' != '1' and Exists('$(GodotExe)')">
+        <Message Text="Exporting mod PCK with Godot..." Importance="high" />
+        <MakeDir Directories="$(ModOutputDir)" />
+        <Exec Command="&quot;$(GodotExe)&quot; --headless --path &quot;$(MSBuildProjectDirectory)&quot; --export-pack &quot;$(GodotExportPreset)&quot; &quot;$(ModPckPath)&quot;" EnvironmentVariables="STS2_SKIP_PCK_EXPORT=1" />
+    </Target>
+
+    <Target Name="Warn Missing Godot" AfterTargets="Build" Condition="'$(RunPckExport)' == 'true' and '$(STS2_SKIP_PCK_EXPORT)' != '1' and !Exists('$(GodotExe)')">
+        <Warning Text="Godot executable not found at $(GodotExe). Skipped PCK export." />
+    </Target>
+
+    <ItemGroup>
+        <Compile Remove=".godot\**" />
+        <None Remove=".godot\**" />
+        <Content Remove=".godot\**" />
+        <EmbeddedResource Remove=".godot\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="pvp_duel.json" />
+    </ItemGroup>
+</Project>

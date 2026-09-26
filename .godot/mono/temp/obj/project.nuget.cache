@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "TmR6N+YWMW8=",
+  "success": true,
+  "projectFilePath": "E:\\game_part2\\mod_c\\sts2\\mod\\remake\\PVP决斗\\pvp_duel.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\yyqyhyue\\.nuget\\packages\\godot.sourcegenerators\\4.5.1\\godot.sourcegenerators.4.5.1.nupkg.sha512",
+    "C:\\Users\\yyqyhyue\\.nuget\\packages\\godotsharp\\4.5.1\\godotsharp.4.5.1.nupkg.sha512",
+    "C:\\Users\\yyqyhyue\\.nuget\\packages\\godotsharpeditor\\4.5.1\\godotsharpeditor.4.5.1.nupkg.sha512",
+    "C:\\Users\\yyqyhyue\\.nuget\\packages\\sts2.ritsulib\\0.5.18\\sts2.ritsulib.0.5.18.nupkg.sha512",
+    "C:\\Users\\yyqyhyue\\.nuget\\packages\\system.io.hashing\\9.0.0\\system.io.hashing.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -17,3 +17,4 @@ E:\game_part2\mod_c\sts2\mod\remake\PVP决斗\.godot\mono\temp\obj\Debug\refint\
 E:\game_part2\mod_c\sts2\mod\remake\PVP决斗\.godot\mono\temp\obj\Debug\pvp_duel.pdb
 E:\game_part2\mod_c\sts2\mod\remake\PVP决斗\.godot\mono\temp\obj\Debug\pvp_duel.genruntimeconfig.cache
 E:\game_part2\mod_c\sts2\mod\remake\PVP决斗\.godot\mono\temp\obj\Debug\ref\pvp_duel.dll
+E:\game_part2\mod_c\sts2\mod\remake\PVP决斗\.godot\mono\temp\obj\Debug\pvp_duel.sourcelink.json

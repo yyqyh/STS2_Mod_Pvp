@@ -31,6 +31,37 @@ public sealed class PvpSettings
     /// <summary>诊断模块：只打一次的详细日志 + 战斗启动异常打印（纯本机）。</summary>
     public bool ModuleDiagnostics { get; set; } = true;
 
+    // ==================== 分离模式（C2，实验）====================
+
+    /// <summary>分离模式（C2 实验）：把联机链路从「一局」里剥出来。（⚠ 实验功能）</summary>
+    public bool ModuleSplitMode { get; set; }
+
+    /// <summary>分离模式下的保活：退出对局时不主动断开联机连接。（⚠ 实验功能，两端都要开）</summary>
+    public bool ModuleSplitKeepAlive { get; set; }
+
+    /// <summary>
+    /// 分离模式的坐标同步（Presence 通道）。（⚠ 两端一致）
+    /// </summary>
+    /// <remarks>
+    /// 默认开：它是分离模式的核心内容，且整条链路受 <see cref="ModuleSplitMode" /> 约束（那个默认关），
+    /// 老配置文件里没有这个键时也能直接生效，省得"总开关开了却什么都没发生"。
+    /// </remarks>
+    public bool ModuleSplitPresence { get; set; } = true;
+
+    /// <summary>分离模式的地图标记（在地图上画出对端）。</summary>
+    public bool ModuleSplitIcon { get; set; } = true;
+
+    /// <summary>
+    /// 分离期入口：进联机局后各自切到自己的单机局（同种子）。（⚠ 实验功能，两端都要开）
+    /// </summary>
+    public bool ModuleSplitSoloRun { get; set; }
+
+    /// <summary>分离模式的相遇：同节点时交换玩家快照（供合流合成 PVP 局用）。（⚠ 两端一致）</summary>
+    public bool ModuleSplitMeeting { get; set; } = true;
+
+    /// <summary>分离模式的状态行（左上角一行小字，纯本机观测）。</summary>
+    public bool ModuleSplitStatusHud { get; set; } = true;
+
     /// <summary>回合上限：打满这么多回合还没分出胜负，就按剩余血量比例判定。</summary>
     public int MaxRounds { get; set; } = 30;
 

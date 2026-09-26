@@ -4,7 +4,7 @@
   "name": "PVP 决斗",
   "author": "b4c",
   "description": "让联机的两名玩家互相对战：没有怪物，回合交替行动，谁先倒下谁输。手牌对对手隐藏。",
-  "version": "0.2.0",
+  "version": "0.15.1",
   "has_pck": true,
   "has_dll": true,
   "affects_gameplay": true,

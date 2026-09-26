@@ -10,6 +10,7 @@
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) —— 分层、模块与开关、目录职责、运行时生命周期、跨端一致性约定
 - [docs/IMPLEMENTATION.md](docs/IMPLEMENTATION.md) —— 每个机制的实现方案、对外 API、构建方式、踩坑清单
+- [docs/SPLIT_MODE.md](docs/SPLIT_MODE.md) —— 分离模式（C2）的分层设计、状态机、消息契约与验证步骤（实验）
 
 ## 构建
 

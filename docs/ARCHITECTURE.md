@@ -1,7 +1,7 @@
 # PVP 决斗 · 代码架构
 
-> 适用于 `pvp_duel` 0.2.0 ｜ 最后整理：2026-09-26
-> 配套文档：[实现方案](IMPLEMENTATION.md)
+> 适用于 `pvp_duel` 0.4.0 ｜ 最后整理：2026-09-26
+> 配套文档：[实现方案](IMPLEMENTATION.md) ｜ [分离模式（C2）设计](SPLIT_MODE.md)
 
 ## 1. 一句话概览
 
@@ -53,6 +53,17 @@ Core/
     DuelInvitationEvent.cs       「对决邀请」事件（进决斗的唯一正式入口）
     Patches/EntryPatches.cs      调试入口（第一个问号房）/ 事件房替换 / 事件选项异常兜底
 
+  SplitMode/                     【模块】分离模式（开关：SplitMode / SplitKeepAlive / SplitStatusHud）
+    SplitStage.cs                阶段枚举与状态（SoloRun / Meeting / DuelRun / AfterRun）
+    Link/SplitLink.cs            保活链路：捕获联机传输 / 拦退出时的断开 / 每帧泵 / 状态统计
+    Link/SplitLinkPump.cs        常驻 Node：离开对局后接着泵那条传输
+    Link/SplitLinkPatches.cs     三个挂点（捕获、拦断窗口、断连守卫）
+    Presence/SplitPresenceChannel.cs  Presence 通道：消息类型 + Sidecar 收发
+    Presence/PresenceLedger.cs        坐标台账（本机 + 对端）与相遇判定
+    Presence/PresencePublisher.cs     采样与节流（250ms 一发坐标）
+    Hud/SplitStatusHud.cs        左上角状态行（纯本机观测）
+    Hud/MapPeerMarker.cs         地图上给对端贴标记（◆ 对端 83% / ⚔ 相遇）
+
   Api/
     DuelApi.cs                   对外接口：改限制数值、接管或取消我们的规则、读用量
 ```
@@ -91,6 +102,7 @@ Core/
 | 回合横幅 | `Core/Duel/Patches/BannerPatches.cs` | `ModuleBanners` → `Banners` | 文案回到本体的「额外回合 / 敌方回合」 | ❌ 纯本机 |
 | 限制小抄 | `Core/Duel/Hud/DuelHud.cs` | `ModuleLimitHud` → `LimitHud` | 不显示右上角那几行 | ❌ 纯本机 |
 | 诊断 | `Core/Diagnostics/` | `ModuleDiagnostics` → `Diagnostics` | 不打过程日志与完整异常栈 | ❌ 纯本机 |
+| 分离模式（C2，实验） | `Core/SplitMode/` | `ModuleSplitMode` → `SplitMode`；子开关 `SplitKeepAlive`（保活）/ `SplitPresence`（坐标同步）/ `SplitStatusHud`（状态行） | 完全不碰联机链路（默认就是关的） | ✅ 开的时候 |
 
 **为什么分「两端必须一致」**：带 ✅ 的开关会改变对局内容（章节列表、房间、共享状态、每回合谁动），
 两端不一致会在某个 checksum 点上当场分叉（主机 `StateDivergence` 踢人）。纯本机的开关只影响自己屏幕上的东西。

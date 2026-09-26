@@ -5,6 +5,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
 using PvpDuel.Core;
 using PvpDuel.Core.Settings;
+using PvpDuel.Core.SplitMode;
 
 namespace PvpDuel;
 
@@ -31,6 +32,13 @@ public static class Main
         // 设置要在任何「读设置」的代码之前就位。
         PvpSettingsStore.Initialize();
         PvpModSettingsPage.Register();
+        SplitStatusHud.EnsureRunningDeferred();
+
+        // 分离模式的坐标同步：模块开着就先把通道注册好（订阅要早，免得对面先发我们收不到）。
+        if (ModuleSwitches.SplitPresence)
+        {
+            SplitPresenceChannel.Initialize();
+        }
 
         var applied = 0;
         var failed = 0;

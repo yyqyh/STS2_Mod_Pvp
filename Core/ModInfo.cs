@@ -9,7 +9,7 @@ internal static class ModInfo
     public const string ModId = "pvp_duel";
 
     /// <summary>必须与清单 <c>pvp_duel.json</c> 的 version 一致（编译前有 CheckVersionConsistency 把关）。</summary>
-    public const string Version = "0.2.0";
+    public const string Version = "0.15.1";
 
     private const string Prefix = "[pvp_duel] ";
 

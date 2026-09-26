@@ -159,6 +159,73 @@ internal static class PvpModSettingsPage
                     ModSettingsText.Literal(
                         "打开后：只打一次的过程日志（站位、目标重算、拦怪等）会写进 godot.log，\n"
                         + "并把战斗启动时被本体吞掉的异常完整打出来。排查完可以关掉。（纯本机）")))
+            .AddSection("split", section => section
+                .WithTitle(ModSettingsText.Literal("分离模式（实验）"))
+                .AddParagraph(
+                    "split_hint",
+                    ModSettingsText.Literal(
+                        "目标：两人各跑各的单机局（同种子），地图上只同步对方的「位置图标」，相遇时才合流进一局打 PVP。\n"
+                        + "目前只做了地基：把那条联机传输从「一局」里剥出来并保活，还没有任何玩法改动。\n"
+                        + "验证步骤与后续路线见工程里的 docs/SPLIT_MODE.md。（⚠ 实验功能，两端都要开）"))
+                .AddToggle(
+                    "module_split_mode",
+                    ModSettingsText.Literal("分离模式：接管联机链路"),
+                    Toggle(s => s.ModuleSplitMode, (s, v) => s.ModuleSplitMode = v),
+                    ModSettingsText.Literal(
+                        "开着才会捕获并保留那条联机传输（日志前缀 [SplitMode]）。关掉＝完全不碰联机逻辑。"))
+                .AddToggle(
+                    "module_split_keep_alive",
+                    ModSettingsText.Literal("分离模式：退出对局不断线（保活）"),
+                    Toggle(s => s.ModuleSplitKeepAlive, (s, v) => s.ModuleSplitKeepAlive = v),
+                    ModSettingsText.Literal(
+                        "退出 / 放弃对局时不主动断开联机连接，把连接留给分离期用。\n"
+                        + "只拦「退出对局」这一次，在大厅里按「离开联机」照旧正常断开；\n"
+                        + "想彻底退联机：先把这个开关关掉再退。"),
+                    visibleWhen: () => ModuleSwitches.SplitMode)
+                .AddToggle(
+                    "module_split_presence",
+                    ModSettingsText.Literal("分离模式：同步对方坐标（Presence）"),
+                    Toggle(s => s.ModuleSplitPresence, (s, v) => s.ModuleSplitPresence = v),
+                    ModSettingsText.Literal(
+                        "每 250ms 把「我在第几幕的哪个坐标、在地图/房间/战斗」发给对端，对端的状态行会显示出来。\n"
+                        + "这是分离期唯一的业务流量，走 RitsuLib 的 Sidecar 通道。（⚠ 两端都要开）"),
+                    visibleWhen: () => ModuleSwitches.SplitMode)
+                .AddToggle(
+                    "module_split_icon",
+                    ModSettingsText.Literal("分离模式：在地图上画出对方"),
+                    Toggle(s => s.ModuleSplitIcon, (s, v) => s.ModuleSplitIcon = v),
+                    ModSettingsText.Literal(
+                        "地图上给对方所在的那个节点贴一个小标记（`◆ 对端 83%`；两人同节点时变成 `⚔ 相遇`）。\n"
+                        + "纯本机表现，不参与判定。"),
+                    visibleWhen: () => ModuleSwitches.SplitMode)
+                .AddToggle(
+                    "module_split_solo_run",
+                    ModSettingsText.Literal("分离模式：大厅按开始时，各自开自己的单机局"),
+                    Toggle(s => s.ModuleSplitSoloRun, (s, v) => s.ModuleSplitSoloRun = v),
+                    ModSettingsText.Literal(
+                        "开（分离模式）：在角色选择界面按下开始时拦下，给本机开一局自己的单机局（两人同一种子）。\n"
+                        + "　大厅连接不会被断，两人各跑各的、地图一致，地图上能看到对方在别的节点。\n"
+                        + "关（老玩法）：照常开联机共享局，三幕打完进「PVP 决斗」额外幕，在「对决邀请」事件里开打。\n"
+                        + "⚠ 实验功能：开着时卡组/遗物是初始的（不继承进度）、两人各自独立，\n"
+                        + "在合流做完之前回不到同一局——想恢复原样请重开游戏。（⚠ 两端都要开）"),
+                    visibleWhen: () => ModuleSwitches.SplitMode)
+                .AddToggle(
+                    "module_split_meeting",
+                    ModSettingsText.Literal("相遇决斗：走到同一节点（进房间前）就交换快照"),
+                    Toggle(s => s.ModuleSplitMeeting, (s, v) => s.ModuleSplitMeeting = v),
+                    ModSettingsText.Literal(
+                        "只属于分离模式：开着时，两人走到同一节点【进房间之前】各发一份自己的玩家快照，"
+                        + "为「合流进一局打 PVP」做准备（目前只交换并打日志）。\n"
+                        + "关掉＝分离期就只是各玩各的（仍然同步坐标、地图上能看到对方），不会触发任何对决。\n"
+                        + "⚠ 分离模式关掉时这一项不生效（老玩法的 PVP 入口是额外幕 + 事件）。（⚠ 两端都要开）"),
+                    visibleWhen: () => ModuleSwitches.SplitMode)
+                .AddToggle(
+                    "module_split_status_hud",
+                    ModSettingsText.Literal("分离模式：状态行（左上角）"),
+                    Toggle(s => s.ModuleSplitStatusHud, (s, v) => s.ModuleSplitStatusHud = v),
+                    ModSettingsText.Literal(
+                        "左上角一行小字：当前阶段 / 链路存活 / 本机 netId / 对端 id。纯本机观测，不参与判定。\n"
+                        + "（改这项需要重启游戏才生效）")))
             .AddSection("how", section => section
                 .WithTitle(ModSettingsText.Literal("流程"))
                 .AddParagraph(
